@@ -10,6 +10,8 @@ class StateManager:
         self.load_tasks()
 
     def load_tasks(self):
+        self.states={}
+
         """Load tasks from the 'tasks' folder. Each file represents a task."""
         if not os.path.exists(self.tasks_folder):
             os.makedirs(self.tasks_folder)
@@ -29,13 +31,12 @@ class StateManager:
         """Delete a task from the state manager and its file."""
         if task_name in self.states:
             del self.states[task_name]
+            file_path = os.path.join(self.tasks_folder, f"{task_name}.txt")
+            if os.path.exists(file_path):
+                os.remove(file_path)
             return True
         else:
             return False
-
-        file_path = os.path.join(self.tasks_folder, f"{task_name}.txt")
-        if os.path.exists(file_path):
-            os.remove(file_path)
 
     def toggle_state(self, task_name):
         """Toggle the state of a task."""

@@ -12,6 +12,7 @@ play_icon="assets/play.png"
 class WebRequestApp(QWidget):
     def __init__(self):
         super().__init__()
+        self.main_layout = None
         self.running_header = None
         self.console_header = None
         self.stop_button = None
@@ -27,7 +28,7 @@ class WebRequestApp(QWidget):
         self.setGeometry(100, 100, 600, 400)
 
         # Layouts
-        main_layout = QHBoxLayout()
+        self.main_layout = QHBoxLayout()
         left_layout = QVBoxLayout()
         right_layout = QVBoxLayout()
 
@@ -74,15 +75,15 @@ class WebRequestApp(QWidget):
         self.text_output.setStyleSheet("background-color: black; color: white; font-family: Consolas; font-size: 14px;")
         right_layout.addWidget(self.text_output)
 
-        main_layout.addLayout(left_layout, 1)
-        main_layout.addLayout(right_layout, 3)
+        self.main_layout.addLayout(left_layout, 1)
+        self.main_layout.addLayout(right_layout, 3)
 
-        self.setLayout(main_layout)
+        self.setLayout(self.main_layout)
 
     def populate_list(self):
         """Populate the list with items and their icons."""
         self.list_widget.clear()  # Clear the list first
-
+        self.state_manager.load_tasks()
         for task_name, is_running in self.state_manager.states.items():
             # Create a QListWidgetItem
             item = QListWidgetItem(self.list_widget)  # Pass the list widget as parent
@@ -210,8 +211,11 @@ class WebRequestApp(QWidget):
     def execute_task_delete(self, dialog, task_name):
         if task_name:
             success = self.state_manager.delete_task(task_name)
-            dialog.accept()
-            if not success:
+
+            if success:
+                # Update UI list
+                self.populate_list()
+            else:
                 error_dialog = QDialog(self)
                 error_dialog.setWindowTitle("Error")
                 error_dialog.setModal(True)
@@ -223,6 +227,7 @@ class WebRequestApp(QWidget):
                 error_layout.addWidget(close_button)
                 error_dialog.setLayout(error_layout)
                 error_dialog.exec_()
+            dialog.accept()
 
 
     def save_task_edit(self, dialog, new_name, old_name):
@@ -230,15 +235,10 @@ class WebRequestApp(QWidget):
         if new_name.strip():
             # Update task name in state manager
             self.state_manager.update_task_name(old_name, new_name)
+            self.populate_list()
 
-            # Update UI list
-            for i in range(self.list_widget.count()):
-                item = self.list_widget.item(i)
-                item_widget = self.list_widget.itemWidget(item)
-                if item_widget.task_name == old_name:
-                    item_widget.task_name = new_name
-                    item_widget.task_label.setText(new_name)
-                    break
+            if self.console_header.text() == old_name:
+                self.console_header.setText(new_name)
 
             # Close dialog
             dialog.accept()
