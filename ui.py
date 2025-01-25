@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
     QSpacerItem, QSizePolicy
 )
 from PyQt5.QtGui import QIcon
-from state_manager import StateManager
+from task_manager import TaskManager
 
 stop_icon="assets/stop.png"
 play_icon="assets/play.png"
@@ -20,7 +20,7 @@ class WebRequestApp(QWidget):
         self.add_task_button = None
         self.list_widget = None
         self.text_output = None
-        self.state_manager = StateManager()
+        self.state_manager = TaskManager()
         self.init_ui()
 
     def init_ui(self):

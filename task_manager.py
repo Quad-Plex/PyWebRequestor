@@ -3,7 +3,7 @@ import os
 import ui
 
 
-class StateManager:
+class TaskManager:
     def __init__(self, tasks_folder="tasks"):
         self.tasks_folder = tasks_folder
         self.states = {}
